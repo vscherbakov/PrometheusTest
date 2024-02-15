@@ -18,11 +18,11 @@ import java.util.function.Consumer;
 
 public class ThreadApp {
     public String getGreeting() {
-        return "Hello World!";
+        return "ThreadApp>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:Hello World";
     }
 
     public static void main(String[] args) throws InterruptedException {
-        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "40");
+        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "60");
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(App.PrometheusConfig1.class);
         var registry = context.getBean(CollectorRegistry.class);
         System.out.println(new App().getGreeting());
@@ -55,8 +55,8 @@ public class ThreadApp {
         //var report = new SummaryThreadReporter(summary); // 728851ms
         //var report = new GaugeThreadReporter(counter); // 28s, n=47 - 60sec
         //var report = new HistoThreadReporter(histo);
-        //var task = new FibonacciTask(47, report); // 45
-        var pool = Executors.newFixedThreadPool(50);
+        //var task = new FibonacciTask(50, report); // 45
+        var pool = Executors.newFixedThreadPool(600);
 
         Consumer<Double> consumer = param -> summary.observe(param);
         //var SIZE = 2_000_000_000;
@@ -64,8 +64,9 @@ public class ThreadApp {
         //var SIZE = 10_000_000;
         CountDownLatch latch = new CountDownLatch(SIZE);
         var atomic = new AtomicLong();
-        for (var i = 0; i < SIZE; i++) {
+        for (int i = 0; i < SIZE; i++) {
 
+            int finalI = i;
             pool.submit(() -> {
                 // 30mil and 50 threads
                 //summary.observe(System.currentTimeMillis() % 10000); 30mil + 22.5 sec
@@ -80,7 +81,9 @@ public class ThreadApp {
                 // summary with quintiles
                 summary.observe(atomic.addAndGet(1)); // 83 sec 1mil, 50 threads
                 //histo.observe(System.currentTimeMillis() % 10000); // 0.6 sec
+
                 latch.countDown();
+                System.out.println(finalI);
             });
         }
         List<Double> quantiles = new ArrayList<>();
@@ -94,7 +97,7 @@ public class ThreadApp {
 
 
         latch.await();
-        System.out.println("Duration: " + (System.currentTimeMillis() - start));
+        System.out.println("Duration>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>: " + (System.currentTimeMillis() - start));
         Thread.sleep(100000);
     }
 

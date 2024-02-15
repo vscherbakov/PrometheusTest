@@ -21,11 +21,11 @@ import java.util.function.Consumer;
 
 public class App {
     public String getGreeting() {
-        return "Hello World!";
+        return "App:Hello World!";
     }
 
     public static void main(String[] args) throws InterruptedException {
-        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "40");
+        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "60");
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(PrometheusConfig1.class);
         var registry = context.getBean(CollectorRegistry.class);
         System.out.println(new App().getGreeting());
@@ -58,14 +58,14 @@ public class App {
         var report = new SummaryThreadReporter(summary); // n=30, 164 sec
         //var report = new GaugeThreadReporter(counter); // 28s, n=47 - 60sec
         //var report = new HistoThreadReporter(histo); // 30, 0.5 SEC
-        var task = new FibonacciTask(27, report); // 45
-        var newPool  = new ForkJoinPool(40);
+        var task = new FibonacciTask(15, report); // 45
+        var newPool  = new ForkJoinPool(60);
 
-        //var task = new FibonacciTask(47, null);  // n=45 20000ms, n=47 53727ms
+        //var task = new FibonacciTask(5, null);  // n=45 20000ms, n=47 53727ms
         System.out.println("number of parallellism: " + ForkJoinPool.commonPool().getParallelism());
         newPool.invoke(task);
 
-        System.out.println("Duration: " + (System.currentTimeMillis() - start));
+        System.out.println("Duration>>>>>>>>>>>: " + (System.currentTimeMillis() - start));
         Thread.sleep(100000);
     }
 
